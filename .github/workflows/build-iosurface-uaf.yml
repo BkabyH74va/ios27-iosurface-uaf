@@ -35,28 +35,8 @@ jobs:
         mkdir -p Payload/IOSurfaceUAF.app
         cp iosurface_uaf Payload/IOSurfaceUAF.app/IOSurfaceUAF
         
-        python3 << 'PYEOF'
-import plistlib
-
-info = {
-    "CFBundleDevelopmentRegion": "en",
-    "CFBundleExecutable": "IOSurfaceUAF",
-    "CFBundleIdentifier": "com.jasonquiles.iosurfaceuaf",
-    "CFBundleInfoDictionaryVersion": "6.0",
-    "CFBundleName": "IOSurfaceUAF",
-    "CFBundlePackageType": "APPL",
-    "CFBundleShortVersionString": "1.0",
-    "CFBundleVersion": "1",
-    "LSRequiresIPhoneOS": True,
-    "UIRequiresFullScreen": True,
-    "UISupportedInterfaceOrientations": ["UIInterfaceOrientationPortrait"]
-}
-
-with open("Payload/IOSurfaceUAF.app/Info.plist", "wb") as f:
-    plistlib.dump(info, f)
-
-print("Info.plist created")
-PYEOF
+        # Create Info.plist using printf (no heredoc)
+        printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' '<plist version="1.0">' '<dict>' '    <key>CFBundleExecutable</key>' '    <string>IOSurfaceUAF</string>' '    <key>CFBundleIdentifier</key>' '    <string>com.jasonquiles.iosurfaceuaf</string>' '    <key>CFBundleName</key>' '    <string>IOSurfaceUAF</string>' '    <key>CFBundleVersion</key>' '    <string>1</string>' '    <key>CFBundleShortVersionString</key>' '    <string>1.0</string>' '    <key>LSRequiresIPhoneOS</key>' '    <true/>' '</dict>' '</plist>' > Payload/IOSurfaceUAF.app/Info.plist
         
         zip -r IOSurfaceUAF.ipa Payload/
         ls -lh IOSurfaceUAF.ipa
