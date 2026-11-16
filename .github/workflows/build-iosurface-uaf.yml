@@ -1,0 +1,77 @@
+name: Build IOSurface UAF Harness
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Compile IOSurface UAF Harness
+      run: |
+        clang -arch arm64 \
+          -isysroot $(xcrun --sdk iphoneos --show-sdk-path) \
+          -miphoneos-version-min=15.0 \
+          -framework IOKit \
+          -framework Foundation \
+          -framework CoreFoundation \
+          -O2 \
+          -o iosurface_uaf \
+          harness/IOSurfaceUAFHarness.m
+        
+        echo "Compiled successfully"
+        file iosurface_uaf
+    
+    - name: Create App Bundle
+      run: |
+        mkdir -p Payload/IOSurfaceUAF.app
+        cp iosurface_uaf Payload/IOSurfaceUAF.app/IOSurfaceUAF
+        
+        cat > Payload/IOSurfaceUAF.app/Info.plist << 'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+    <key>CFBundleExecutable</key>
+    <string>IOSurfaceUAF</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.jasonquiles.iosurfaceuaf</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>IOSurfaceUAF</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+    <key>UIRequiresFullScreen</key>
+    <true/>
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+</dict>
+</plist>
+EOF
+        
+        zip -r IOSurfaceUAF.ipa Payload/
+        ls -lh IOSurfaceUAF.ipa
+    
+    - name: Upload IPA
+      uses: actions/upload-artifact@v4
+      with:
+        name: IOSurfaceUAF-unsigned-ipa
+        path: IOSurfaceUAF.ipa
+        retention-days: 7
