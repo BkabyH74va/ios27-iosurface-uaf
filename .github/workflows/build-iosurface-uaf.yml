@@ -23,7 +23,6 @@ jobs:
           -framework CoreFoundation \
           -framework CoreMedia \
           -framework VideoToolbox \
-          -framework IOSurface \
           -O2 \
           -o kernel_write \
           harness/kernel_write.m
