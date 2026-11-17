@@ -1,4 +1,4 @@
-name: Build IOSurface UAF Harness
+name: Build Kernel Write Exploit
 
 on:
   push:
@@ -13,38 +13,36 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Find and Compile Harness
+    - name: Compile Kernel Write Exploit
       run: |
-        SOURCE_FILE=$(find harness -name "*.m" -type f | head -1)
-        echo "Using source: $SOURCE_FILE"
-        
         clang -arch arm64 \
           -isysroot $(xcrun --sdk iphoneos --show-sdk-path) \
           -miphoneos-version-min=15.0 \
           -framework IOKit \
           -framework Foundation \
           -framework CoreFoundation \
-          -framework UIKit \
-          -framework CoreGraphics \
+          -framework CoreMedia \
+          -framework VideoToolbox \
+          -framework IOSurface \
           -O2 \
-          -o iosurface_uaf \
-          "$SOURCE_FILE"
+          -o kernel_write \
+          harness/kernel_write.m
         
-        file iosurface_uaf
+        file kernel_write
     
     - name: Create App Bundle
       run: |
-        mkdir -p Payload/IOSurfaceUAF.app
-        cp iosurface_uaf Payload/IOSurfaceUAF.app/IOSurfaceUAF
+        mkdir -p Payload/KernelWrite.app
+        cp kernel_write Payload/KernelWrite.app/KernelWrite
         
-        printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' '<plist version="1.0">' '<dict>' '    <key>CFBundleExecutable</key>' '    <string>IOSurfaceUAF</string>' '    <key>CFBundleIdentifier</key>' '    <string>com.jasonquiles.iosurfaceuaf</string>' '    <key>CFBundleName</key>' '    <string>IOSurfaceUAF</string>' '    <key>CFBundleVersion</key>' '    <string>1</string>' '    <key>CFBundleShortVersionString</key>' '    <string>1.0</string>' '    <key>LSRequiresIPhoneOS</key>' '    <true/>' '</dict>' '</plist>' > Payload/IOSurfaceUAF.app/Info.plist
+        printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' '<plist version="1.0">' '<dict>' '    <key>CFBundleExecutable</key>' '    <string>KernelWrite</string>' '    <key>CFBundleIdentifier</key>' '    <string>com.jasonquiles.kernelwrite</string>' '    <key>CFBundleName</key>' '    <string>KernelWrite</string>' '    <key>CFBundleVersion</key>' '    <string>1</string>' '    <key>CFBundleShortVersionString</key>' '    <string>1.0</string>' '    <key>LSRequiresIPhoneOS</key>' '    <true/>' '</dict>' '</plist>' > Payload/KernelWrite.app/Info.plist
         
-        zip -r IOSurfaceUAF.ipa Payload/
-        ls -lh IOSurfaceUAF.ipa
+        zip -r KernelWrite.ipa Payload/
+        ls -lh KernelWrite.ipa
     
     - name: Upload IPA
       uses: actions/upload-artifact@v4
       with:
-        name: IOSurfaceUAF-unsigned-ipa
-        path: IOSurfaceUAF.ipa
+        name: KernelWrite-unsigned-ipa
+        path: KernelWrite.ipa
         retention-days: 7
