@@ -13,35 +13,51 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Compile Kernel Write Exploit
+    - name: Compile
       run: |
         clang -arch arm64 \
           -isysroot $(xcrun --sdk iphoneos --show-sdk-path) \
           -miphoneos-version-min=15.0 \
           -framework IOKit \
           -framework Foundation \
-          -framework CoreFoundation \
-          -framework CoreMedia \
-          -framework VideoToolbox \
           -O2 \
-          -o kernel_write \
-          harness/kernel_write.m
+          -o kernel_rw \
+          harness/kernel_rw.m
         
-        file kernel_write
+        echo "Build succeeded"
+        ls -lh kernel_rw
     
-    - name: Create App Bundle
+    - name: Create IPA
       run: |
-        mkdir -p Payload/KernelWrite.app
-        cp kernel_write Payload/KernelWrite.app/KernelWrite
+        mkdir -p Payload/KernelRW.app
+        cp kernel_rw Payload/KernelRW.app/KernelRW
         
-        printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' '<plist version="1.0">' '<dict>' '    <key>CFBundleExecutable</key>' '    <string>KernelWrite</string>' '    <key>CFBundleIdentifier</key>' '    <string>com.jasonquiles.kernelwrite</string>' '    <key>CFBundleName</key>' '    <string>KernelWrite</string>' '    <key>CFBundleVersion</key>' '    <string>1</string>' '    <key>CFBundleShortVersionString</key>' '    <string>1.0</string>' '    <key>LSRequiresIPhoneOS</key>' '    <true/>' '</dict>' '</plist>' > Payload/KernelWrite.app/Info.plist
+        cat > Payload/KernelRW.app/Info.plist << 'PLIST'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleExecutable</key>
+    <string>KernelRW</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.jasonquiles.kernelrw</string>
+    <key>CFBundleName</key>
+    <string>KernelRW</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>LSRequiresIPhoneOS</key>
+    <true/>
+</dict>
+</plist>
+PLIST
         
-        zip -r KernelWrite.ipa Payload/
-        ls -lh KernelWrite.ipa
+        zip -r KernelRW.ipa Payload/
+        ls -lh KernelRW.ipa
     
-    - name: Upload IPA
+    - name: Upload
       uses: actions/upload-artifact@v4
       with:
-        name: KernelWrite-unsigned-ipa
-        path: KernelWrite.ipa
-        retention-days: 7
+        name: KernelRW-unsigned-ipa
+        path: KernelRW.ipa
