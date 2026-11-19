@@ -32,8 +32,8 @@ jobs:
         mkdir -p Payload/KernelRW.app
         cp kernel_rw Payload/KernelRW.app/KernelRW
         
-        # Create Info.plist using printf (no heredoc)
-        printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' '<plist version="1.0">' '<dict>' '    <key>CFBundleExecutable</key>' '    <string>KernelRW</string>' '    <key>CFBundleIdentifier</key>' '    <string>com.jasonquiles.kernelrw</string>' '    <key>CFBundleName</key>' '    <string>KernelRW</string>' '    <key>CFBundleVersion</key>' '    <string>1</string>' '    <key>CFBundleShortVersionString</key>' '    <string>1.0</string>' '    <key>LSRequiresIPhoneOS</key>' '    <true/>' '</dict>' '</plist>' > Payload/KernelRW.app/Info.plist
+        # Create Info.plist using printf (YAML-safe)
+        printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' '<plist version="1.0">' '<dict>' '    <key>CFBundleExecutable</key>' '    <string>KernelRW</string>' '    <key>CFBundleIdentifier</key>' '    <string>com.jasonquiles.kernelrw</string>' '    <key>CFBundleName</key>' '    <string>KernelRW</string>' '    <key>CFBundleVersion</key>' '    <string>1</string>' '    <key>CFBundleShortVersionString</key>' '    <string>1.0</string>' '    <key>LSRequiresIPhoneOS</key>' '    <true/>' '    <key>UIFileSharingEnabled</key>' '    <true/>' '    <key>LSSupportsOpeningDocumentsInPlace</key>' '    <true/>' '</dict>' '</plist>' > Payload/KernelRW.app/Info.plist
         
         zip -r KernelRW.ipa Payload/
         ls -lh KernelRW.ipa
