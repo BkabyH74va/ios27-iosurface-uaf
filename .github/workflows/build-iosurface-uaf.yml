@@ -1,4 +1,4 @@
-name: Build iPad UAF Exploit
+name: Build Socket UAF Exploit
 
 on:
   push:
@@ -13,32 +13,31 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Compile
+    - name: Compile Socket UAF
       run: |
         clang -arch arm64 \
           -isysroot $(xcrun --sdk iphoneos --show-sdk-path) \
           -miphoneos-version-min=15.0 \
-          -framework IOKit \
           -framework Foundation \
           -O2 \
-          -o ipad_uaf \
-          harness/ipad_uaf_exploit.m
+          -o socket_uaf \
+          harness/socket_uaf.m
         
         echo "Build succeeded"
-        ls -lh ipad_uaf
+        ls -lh socket_uaf
     
     - name: Create IPA
       run: |
-        mkdir -p Payload/iPadUAF.app
-        cp ipad_uaf Payload/iPadUAF.app/iPadUAF
+        mkdir -p Payload/SocketUAF.app
+        cp socket_uaf Payload/SocketUAF.app/SocketUAF
         
-        printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' '<plist version="1.0">' '<dict>' '    <key>CFBundleExecutable</key>' '    <string>iPadUAF</string>' '    <key>CFBundleIdentifier</key>' '    <string>com.jasonquiles.ipaduaf</string>' '    <key>CFBundleName</key>' '    <string>iPadUAF</string>' '    <key>CFBundleVersion</key>' '    <string>1</string>' '    <key>CFBundleShortVersionString</key>' '    <string>1.0</string>' '    <key>LSRequiresIPhoneOS</key>' '    <true/>' '    <key>UIFileSharingEnabled</key>' '    <true/>' '</dict>' '</plist>' > Payload/iPadUAF.app/Info.plist
+        printf '%s\n' '<?xml version="1.0" encoding="UTF-8"?>' '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' '<plist version="1.0">' '<dict>' '    <key>CFBundleExecutable</key>' '    <string>SocketUAF</string>' '    <key>CFBundleIdentifier</key>' '    <string>com.jasonquiles.socketuaf</string>' '    <key>CFBundleName</key>' '    <string>SocketUAF</string>' '    <key>CFBundleVersion</key>' '    <string>1</string>' '    <key>CFBundleShortVersionString</key>' '    <string>1.0</string>' '    <key>LSRequiresIPhoneOS</key>' '    <true/>' '    <key>UIFileSharingEnabled</key>' '    <true/>' '</dict>' '</plist>' > Payload/SocketUAF.app/Info.plist
         
-        zip -r iPadUAF.ipa Payload/
-        ls -lh iPadUAF.ipa
+        zip -r SocketUAF.ipa Payload/
+        ls -lh SocketUAF.ipa
     
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
-        name: iPadUAF-unsigned-ipa
-        path: iPadUAF.ipa
+        name: SocketUAF-unsigned-ipa
+        path: SocketUAF.ipa
